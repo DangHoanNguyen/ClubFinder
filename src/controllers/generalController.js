@@ -1,6 +1,7 @@
 import argon2 from 'argon2';
+require("dotenv").config();
 
-const CLIENT_ID = '1097965274780-1kstlnt1lqh3kmu6shlt6bqk8hd7t68t.apps.googleusercontent.com';
+const CLIENT_ID = process.env.CLIENT_ID;
 
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
@@ -16,6 +17,10 @@ let renderLoginPage = (req, res, next) => {
     }
     return res.render('Login.ejs')
 };
+
+let sendclientid = (req, res, next) => {
+    return res.send(CLIENT_ID);
+}
 
 //When signing up
 let checkUniqueUsername = (req, res, next) => {
@@ -428,5 +433,6 @@ module.exports = {
     loadAnnouncements: loadAnnouncements,
     checkUserRole: checkUserRole,
     clubJoinRequest: clubJoinRequest,
-    loadSignup: loadSignup,
+    loadSignup:loadSignup,
+    sendclientid: sendclientid,
 };

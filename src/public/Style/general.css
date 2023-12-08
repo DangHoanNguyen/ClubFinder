@@ -49,6 +49,7 @@ a {
     width: 90%;
     float: right;
     padding: 10px;
+    overflow: hidden;
 }
 #announcements {
     height: 100%;

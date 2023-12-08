@@ -14,6 +14,8 @@ let initPublicWebRoutes = (app) => {
     // Render the log-in page
     router.get('/login', generalController.renderLoginPage);
 
+    router.get('/clientid',generalController.sendclientid)
+
     // Ensure that the username when signing up is unique
     router.post('/checkusrnexistence', generalController.checkUniqueUsername);
 
