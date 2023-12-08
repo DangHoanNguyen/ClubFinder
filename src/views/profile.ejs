@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/Style/general.css">
+    <link rel="stylesheet" href="/Style/MyProfile.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <script type="module" src="/Javascript/MyProfile.js" defer></script>
+    <title>My Profile</title>
+</head>
+
+<body>
+    <div id="app">
+        <div id="menu" class="col-2">
+            <div>
+                <h1>My Profile</h1>
+            </div>
+            <div id="info-badge" class="chosen fw-bold" v-on:click="showinfo">My Information</div>
+            <div id="club-badge" class="menu-elm fw-bold" v-on:click="showclubs">My clubs</div>
+            <div id="rsvp-badge" class="menu-elm fw-bold" v-on:click="showrsvp">RSVPs</div>
+            <div id="navigation" class="justify-content-center">
+                <a href="/"><i class="fa fa-home fs-2 mt-2 text-dark" aria-hidden="true"></i></a> 
+                <a href="/user/logout"><h4 class="text-danger fw-bold">LOGOUT</h4></a>
+            </div>
+        </div>
+        <div id="main" class="col-9 ctn main-ctn">
+            <template id="information" v-if="current == 0">
+                <form action="/user/updateProfile" method="post" oninput="conditionCheck()" class="mx-auto my-5">
+
+                    <label class="form-label fw-bold" for="firstname">First name:</label><br />
+                    <input class="text-ctn" v-bind:value="information.first_name" type="text" id="firstname"
+                        name="firstname" required /><br />
+                    <label class="form-label fw-bold" for="lastname">Last name:</label><br />
+                    <input class="text-ctn" v-bind:value="information.last_name" type="text" id="lastname"
+                        name="lastname" required /><br />
+                    <label class="form-label fw-bold" for="age">Age:</label><br />
+                    <input class="text-ctn" v-bind:value="information.age" type="number" id="age" name="age"
+                        required /><br />
+                    <label class="form-label fw-bold" for="Gender">Gender:</label><br />
+                    <select class="text-ctn" v-bind:value="information.gender" id="gender" name="gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="" selected="selected">Not sure</option>
+                    </select><br />
+
+                    <input id="submit-btn" class="btn" type="submit" value="Submit change">
+
+                </form>
+            </template>
+            <template v-if="current == 1">
+                <div id="clubs">
+                    <div v-for="club in clubs" class="club-cards">
+                        <a v-bind:href="club.pagesrc">
+                            <div class="clubimg mx-auto"></div>
+                            <h2 class='text-white'> {{club.club_name}}</h2>
+                        </a>
+                    </div>
+                </div>
+            </template>
+            <template id="rsvp" v-if="current == 2">
+                <div class="section">
+                    <h3 class="fw-bolder">Eventname</h3>
+                    <h3 class="fw-bolder">Revenue and Time</h3>
+                    <h3 class="fw-bolder">Answer</h3>
+                </div>
+                <div id="rsvp-ctn">
+                    <div v-for="x in rsvp" class="rsvp-boxes section">
+                        <div>{{x.event_name}}</div>
+                        <div>
+                            <div>{{x.place}}</div>
+                            <div>{{x.date_of_event}}</div>
+                        </div>
+                        <template v-if="x.rep == 0" class="">
+                            <div>
+                                <div class="text-danger fw-bold">NO</div>
+                                <button class="bg-warning rsvp-btn" type="button" v-on:click="edit"
+                                    v-bind:value="x.rsvp_id">Edit</button>
+                            </div>
+                        </template>
+                        <template v-else-if="x.rep == 1" class="">
+                            <div>
+                                <div class="text-success fw-bold">YES</div>
+                                <button class="bg-warning rsvp-btn" type="button" v-on:click="edit"
+                                    v-bind:value="x.rsvp_id">Edit</button>
+                            </div>
+                        </template>
+                        <template v-else class="rsvp-vue">
+                            <div>
+                                <button class="bg-success rsvp-btn" type="button" v-on:click="answer_rsvp"
+                                    v-bind:value="x.rsvp_id">YES</button>
+                                <button class="bg-danger rsvp-btn" type="button" v-on:click="answer_rsvp"
+                                    v-bind:value="x.rsvp_id">NO</button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</body>
+
+</html>

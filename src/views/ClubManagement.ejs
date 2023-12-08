@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/Style/general.css">
+    <link rel="stylesheet" href="/Style/ClubManagement.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <script type="module" src="/Javascript/ClubManagement.js" defer></script>
+    <title id="club-title">Managing - </title>
+</head>
+
+<body>
+    <div id="app">
+        <div id="menu" class="col-2">
+            <div>
+                <h1>{{club.club_name}}</h1>
+            </div>
+            <div id="member-badge" class="chosen fw-bold" v-on:click="show_members">Club members</div>
+            <div id="event-badge" class="menu-elm fw-bold" v-on:click="show_events">Events</div>
+            <div id="announcement-badge" class="menu-elm fw-bold" v-on:click="show_announcements">Announcement</div>
+            <div id="request-badge" class="menu-elm fw-bold" v-on:click="show_join_requests">Join requests</div>
+
+            <div id="navigation" class="justify-content-center">
+                <a href="/user/logout">
+                    <h4 class="text-danger fw-bold">LOGOUT</h4>
+                </a>
+            </div>
+        </div>
+        <div id="main" class="col-9 ctn main-ctn">
+            <template id="members" v-if="current == 0">
+                <div class="alert-info float-end">Number of member: {{members.length}}.</div><br />
+                <div class="member-section">
+                    <div class="fw-bolder">User id</div>
+                    <div class="fw-bolder">Username</div>
+                    <div class="fw-bolder">Email</div>
+                    <div class="fw-bolder">Action</div>
+                </div>
+                <div v-for="member in members" class="member-section row">
+                    <div>{{member.user_id}}</div>
+                    <div>{{member.username}}</div>
+                    <div>{{member.email}}</div>
+                    <button type="button" class="btn-primary del-btn" v-bind:value="member.user_id"
+                        v-on:click="confirm_delete">Delete</button>
+                </div>
+            </template>
+            <template id="events" v-if="current == 1">
+                <button type="button" class=" btn-success btn-lg" v-on:click="show_add_events">+ Add events</button>
+                <div id="add_events" style="display: none;" class="mt-3 row">
+                    <div class="d-block"><button class="btn-danger float-end del-btn" v-on:click="close_add_events">X</button></div>
+
+                    <form action="/user/clubmanagement/create-new-event" method="POST">
+                        <label for="event-title" class="form-label">Event title:</label><br/>
+                        <input  type="text" name="title" id="event-title" class="text-ctn"/><br/>
+                        <label for="event-place"  class="form-label">Place:</label><br/>
+                        <input  type="text" name="place" id="event-place" class="text-ctn"/><br/>
+        
+                        <label for="date"  class="form-label">Date: </label><br/>
+                        <input  type="date" name="date" id="date" min="2023-05-01" max="2033-05-01" class="text-ctn"/><br/>
+                        <label for="time"  class="form-label">Time: </label><br/>
+                        <input  type="time" name="time" id="time" min="9:00" max="21:00" class="text-ctn"/><br/>
+        
+                        <label for="des"  class="form-label">Description:</label><br/>
+                        <textarea name="des" id="des" class="text-ctn"></textarea><br/>
+                        <label for="e-status"  class="form-label">Viewable to: </label>
+                        <select id="e-status" name="status" class="text-ctn">
+                            <option value="0">Private</option>
+                            <option value="1">Public</option>
+                        </select><br/>
+                        <input type="submit" value="Create" id="submit-form-event" class="btn">
+                    </form>
+                </div>
+                <div v-for="event in events" class="row">
+                    <p class=" alert-info event-t-p">{{event.date_of_event}} - {{event.place}}</p>
+                    <h3 class="fw-bold">{{event.event_name}}</h3>
+                    <p v-if="event.status == 'Private'" class="alert-danger">Private</p>
+                    <p v-else-if="event.status == 'Public'" class="alert-success">Public</p>
+                    <p>{{event.event_description}}</p>
+                    <div>
+                        <button class="float-end edit-btn" type="button" v-bind:value="events.indexOf(event)"><i
+                                class="fa fa-pencil-square-o fs-3 text-warning" aria-hidden="true" v-on:click="edit_event"></i></button>
+                        <button class="float-end edit-btn" type="button"  v-bind:value="event.event_id"><i class="fa fa-trash-o fs-3 text-danger"
+                                aria-hidden="true" v-on:click="delete_event" ></i></button>
+                    </div>
+                </div>
+            </template>
+            <template id="announcements" v-if="current == 2">
+                <button type="button" class=" btn-success btn-lg" v-on:click="show_add_announcements">+ Add announcements</button>
+
+                <div id="add_announcements" style="display: none;" class="mt-3 row">
+                    <div class="d-block"><button class="btn-danger float-end del-btn" v-on:click="close_add_announcements">X</button></div>
+                    <form action="/user/clubmanagement/add-new-announcement" method="POST">
+                        <label for="ann-title" class="form-label">Announcement title:</label><br/>
+                        <input type="text" name="title" id="ann-title" class="text-ctn"/><br/>
+                        <label for="announcements" class="form-label">Content:</label><br/>
+                        <textarea name="announcements" id="announcements" class="text-ctn"></textarea><br/>
+                        <label for="status" class="form-label">Viewable to: </label>
+                        <select id="status" name="status" class="text-ctn">
+                            <option value="0">Private</option>
+                            <option value="1">Public</option>
+                        </select><br/>
+                        <input type="submit" value="Create" id="submit-form-ann" class="btn">
+                    </form>
+                </div>
+                <div v-for="announcement in announcements" class="row">
+                    <p v-if="announcement.status == 'Private'" class="alert-danger event-t-p">Private</p>
+                    <p v-else-if="announcement.status == 'Public'" class="alert-success event-t-p">Public</p>
+                    <h3 class="fw-bold">{{announcement.title}}</h3>
+                    <p>{{announcement.announcements}}</p>
+                </div>
+            </template>
+            <template id="joinrequests" v-if="current == 3">
+                <div class="request-section">
+                    <div class="fw-bolder">Username</div>
+                    <div class="fw-bolder">Email</div>
+                    <div class="fw-bolder">Action</div>
+                </div>
+                <div v-for="req in join_requests" class="request-section row">
+                    <div>{{req.username}}</div>
+                    <div>{{req.email}}</div>
+                    <div class="d-flex action">
+                        <button type="button" class="btn-success accept-btn" v-bind:value="req.user_id"
+                            v-on:click="action_requests">Accept</button>
+                        <button type="button" class="btn-danger decline-btn" v-bind:value="req.user_id"
+                            v-on:click="action_requests">Decline</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</body>

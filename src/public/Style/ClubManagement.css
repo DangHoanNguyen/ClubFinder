@@ -1,0 +1,71 @@
+
+#menu {
+    min-height: 800px;
+    background-color: white;
+    position: absolute;
+}
+
+#navigation {
+    position: relative;
+    top: 440px;
+    text-align: center;
+}
+.main-ctn { 
+    padding:20px !important;
+    
+}
+
+#main {
+    height: 700px;
+    background-color: white;
+    float: right;
+    margin-top: 50px;
+    border-radius: 20px 0px 0px 20px;
+    overflow-y: scroll;
+}
+
+.member-section {
+    display: grid;
+    grid-template-columns: 0.5fr 1.2fr 3.5fr 1fr ;
+    text-align: center;
+}
+
+.row {
+    box-shadow: 0 3px 4px #0092a6;
+    border-radius: 15px;
+    margin: 6px;
+}
+
+.del-btn {
+    border-radius: 15px;
+}
+
+.event-t-p {
+    border-radius: 15px 15px 0px 0px;
+}
+
+.edit-btn {
+    border: none;
+    background-color: white;
+}
+
+.request-section {
+    display: grid;
+    grid-template-columns: 1.2fr 3.5fr 1fr ;
+    text-align: center;
+}
+
+.accept-btn {
+    border-radius: 15px 0px 0px 15px;
+    width: 50%;
+}
+
+.decline-btn {
+    border-radius: 0px 15px 15px 0px;
+    width: 50%;
+}
+
+.action {
+    width: 100%;
+    padding: 0px !important
+}

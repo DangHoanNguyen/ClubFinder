@@ -1,0 +1,55 @@
+#maincontent {
+    min-height: 800px;
+    border-radius: 0px 25px 0px 0px;
+    margin-top: 10px; 
+    position: absolute;
+}
+
+.search-bar {
+    width: 20% !important;
+    height: 40px;
+    margin-top: 5px !important;
+
+}
+
+.event-details {
+    width: 40% !important;
+    float: right;
+
+}
+
+
+
+.club-info {
+    width: 100%;
+    height: 230px;
+    overflow-y: hidden;
+}
+
+.club-href {
+    color: black;
+}
+
+.join-btn {
+    width: 60% !important;
+    background-color: #0092c6;
+    color: white;
+}
+
+#announcements {
+    max-height: 800px;
+    overflow-y: scroll;
+}
+
+
+
+#event-detail {
+    display: none;
+}
+
+#search-result {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+

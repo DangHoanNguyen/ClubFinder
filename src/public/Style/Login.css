@@ -1,0 +1,26 @@
+a {
+    text-align: center;
+}
+#loginctn {
+    border-radius: 25px;
+    width: 315px;
+    height: 360px;
+    margin: 0px auto;
+    margin-top: 100px !important;
+}
+
+.g_id_signin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    margin-left: -55px;
+}
+
+.g_id_onload {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    margin-left: -55px;
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="/Style/general.css" rel="stylesheet">
+    <link href="/Style/Login.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <title>CLUBFINDERS || Login</title>
+</head>
+
+<body>
+    <div>
+        <h1 id="webtitle" class="mx-4 my-2">CLUBFINDERS'</h1>
+    </div>
+    <div id="loginctn" class="ctn">
+        <div class="d-flex justify-content-center">
+            <h1 class="mt-2">Log In</h1>
+        </div>
+        <form action="/login-req" method="post" class="mx-auto">
+            <label class="form-label fw-bold" for="username">Username:</label><br />
+            <input class="text-ctn" type="text" id="username" name="username" required><br>
+            <label class="form-label fw-bold" for="password">Password:</label><br />
+            <input class="text-ctn" type="password" id="password" name="password" required><br>
+            <input id="submit-req" type="submit" value="Login" class="btn fw-bold">
+        </form>
+
+        <div class="">
+            <a href="./signup" class="mx-auto mt-2 d-block">Sign up</a>
+            <div id="g_id_onload"
+                data-client_id="1097965274780-1kstlnt1lqh3kmu6shlt6bqk8hd7t68t.apps.googleusercontent.com"
+                data-context="signin" data-ux_mode="popup" data-login_uri="http://localhost:8080/google_login"
+                data-auto_prompt="false">
+            </div>
+
+            <div class="g_id_signin mx-auto" data-type="standard" data-shape="pill" data-theme="filled_black"
+                data-text="signin_with" data-size="large" data-logo_alignment="left">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
