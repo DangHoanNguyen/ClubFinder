@@ -43,7 +43,7 @@
             </div>
             <div id="events" class="col-3">
                 <h2 class="fw-bold">Upcoming Events</h2>
-                <div v-for="e in events" class="event-box"> <!--v-for="event in events" :key="event.id"-->
+                <div v-for="e in events" class="event-box"> 
                     <h3>{{e.event_name}}</h3>
                     <p>{{e.event_description}}</p>
                     <button type="button" class="btn event-details" v-bind:value="e.event_id"
@@ -51,12 +51,14 @@
                 </div>
             </div>
         </div>
-        <div id="popup" class="event-details">
+        <div id="event-detail">
             <button type="button" id="close" v-on:click="close_detail" >X</button>
-            <h1>{{eDetail.event_name}}</h1>
-            <div>TIME: {{eDetail.date_of_event}}</div>
-            <div>VENUE: {{eDetail.place}}</div>
+            <h1 class="fw-bold">{{eDetail.event_name}}</h1>
+            <hr>
+            <div class="alert-info">TIME: {{eDetail.date_of_event}}</div>
+            <div class="alert-info">VENUE: {{eDetail.place}}</div>
             <h3>Description</h3>
+            <hr>
             <p>{{eDetail.event_description}}</p>
 
         </div>

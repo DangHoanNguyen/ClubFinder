@@ -56,7 +56,7 @@ const app = new Vue({
             app.load_events();
         },
         close_detail: () => {
-            document.getElementById("popup").style.setProperty('display', 'none');
+            document.getElementById("event-detail").style.setProperty('display', 'none');
             document.getElementById("primary").style.setProperty('pointer-events', 'auto');
         },
         show_detail: (event) => {
@@ -71,7 +71,7 @@ const app = new Vue({
             };
             req.open("GET", "/event-detail?event_id=" + ev_id);
             req.send();
-            document.getElementById("popup").style.setProperty('display', 'block');
+            document.getElementById("event-detail").style.setProperty('display', 'block');
             document.getElementById("primary").style.setProperty('pointer-events', 'none');
         }
     }
