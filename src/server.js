@@ -12,10 +12,10 @@ var session = require("express-session");
 let app = express();
 
 const connection = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '123456',
-    database: 'clubfinderdb',
+    host: 'sql12.freesqldatabase.com',
+    user: 'sql12668851',
+    password: 'CNxG34HwHL',
+    database: 'sql12668851',
     port: 3306
 });
 
