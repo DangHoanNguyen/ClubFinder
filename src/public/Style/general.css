@@ -59,7 +59,21 @@ a {
 #close {
     background-color: red;
     color: white;
+    border-radius: 25px;
     float: right;
+    border: none;
+}
+
+#event-detail {
+    height: 20em;
+    width: 40em;
+    border-radius: 25px;
+    box-shadow: 0 4px 6px #0092a6;
+    position: fixed;
+    top: 10em;
+    left: 20em;
+    background-color: #f1f1f1;
+    padding: 20px;
 }
 .club-cards {
     width: 250px;

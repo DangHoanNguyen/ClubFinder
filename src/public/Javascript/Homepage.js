@@ -45,7 +45,7 @@ const homepage = new Vue({
         if (req.readyState == 4 && req.status == 200) {
           let result = req.responseText;
           result = JSON.parse(result);
-          homepage.eDetail = result[0];
+          homepage.event_details = result[0];
         }
       };
       req.open("GET", "/event-detail?event_id=" + event_id);
