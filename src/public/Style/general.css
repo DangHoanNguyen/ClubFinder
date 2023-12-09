@@ -40,6 +40,9 @@ a {
     clear: right; */
     width: 80%;
 }
+#hpl {
+    color: inherit;
+}
 
 .event-box {
     height: 200px;
