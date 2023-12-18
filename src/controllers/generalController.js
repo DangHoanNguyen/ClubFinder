@@ -215,8 +215,9 @@ let createGoogleCredential = (req, res, next) => {
 let loadClubs = (req, res, next) => {
     req.pool.connect((err, connection) => {
         if (err) {
-            console.log(err)
-            return res.sendStatus(500);
+            console.log(err);
+            // return res.sendStatus(500);
+            return res.send(err)
         }
         let query = `SELECT club_name, club_objective, club_id
             FROM clubs;`;
@@ -225,7 +226,9 @@ let loadClubs = (req, res, next) => {
             if (eror) {
                 console.log(eror)
 
-                return res.sendStatus(500);
+                // return res.sendStatus(500);
+                return res.send(eror)
+
             }
             return res.json(result['rows']);
         });
