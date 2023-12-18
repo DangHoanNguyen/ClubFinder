@@ -87,12 +87,12 @@ let signupReq = (req, res, next) => {
             gend = 'f';
         }
         let query = `INSERT INTO users (username, password_, first_name, last_name, age, gender, email)
-            SELECT ?, ?, ?, ?, ?, ?, ?
+            SELECT $1, $2, $3, $4, $5, $6, $7
             WHERE NOT EXISTS (
-              SELECT 1 FROM users WHERE username = ?
+              SELECT 1 FROM users WHERE username = $8
             )
             AND NOT EXISTS (
-              SELECT 1 FROM users WHERE email = ?
+              SELECT 1 FROM users WHERE email = $9
             );`;
         connection.query(query, [req.body.username, pass, req.body.firstname, req.body.lastname, req.body.age, gend, req.body.email, req.body.username, req.body.email], (eror, result, fields) => {
             connection.release();
@@ -110,7 +110,7 @@ let loginReq = (req, res, next) => {
         if (err) {
             return res.sendStatus(500);
         }
-        let query = "SELECT username, password_, role_id, user_id, email FROM users WHERE username = ?;";
+        let query = "SELECT username, password_, role_id, user_id, email FROM users WHERE username = $1;";
         connection.query(query, [req.body.username], async (eror, result, fields) => {
             connection.release();
             if (eror) {
@@ -164,7 +164,7 @@ let checkGoogleUserExistence = (req, res, next) => {
         }
         let query = `SELECT user_id, role_id
             FROM users
-            WHERE email = ?;`;
+            WHERE email = $1;`;
         connection.query(query, [req.session.email], (eror, result, fields) => {
             connection.release();
             if (eror) {
@@ -198,9 +198,9 @@ let createGoogleCredential = (req, res, next) => {
             return res.sendStatus(500);
         }
         let query = `INSERT INTO users (email)
-            SELECT ?
+            SELECT $1
             WHERE NOT EXISTS(
-              SELECT 1 FROM users WHERE email = ?
+              SELECT 1 FROM users WHERE email = $2
             );`;
         connection.query(query, [req.session.email, req.session.email], (eror, result, field) => {
             connection.release();
@@ -243,12 +243,12 @@ let filterClubsByCategory = (req, res, next) => {
             FROM clubs
             INNER JOIN club_categories
             ON clubs.club_id = club_categories.club_id
-            WHERE clubs.club_name LIKE ? `;
+            WHERE clubs.club_name LIKE $1 `;
         if (req.body.cate == '%') {
             query += ';';
         }
         else {
-            query += `AND club_categories.category = ?;`;
+            query += `AND club_categories.category = $1;`;
         }
 
         if (req.body.title != '%') {
@@ -268,6 +268,7 @@ let loadPublicEvents = (req, res, next) => {
     req.pool.connect((err, connection) => {
         if (err) {
             console.log(err);
+            throw(err);
             return res.sendStatus(500);
         }
         let query = `SELECT event_name, event_description, event_id, date_of_event, place
@@ -278,7 +279,7 @@ let loadPublicEvents = (req, res, next) => {
             connection.release();
             if (eror) {
                 console.log(eror);
-
+                throw(eror)
                 return res.sendStatus(500);
             }
             return res.json(result['rows']);
@@ -295,7 +296,7 @@ let loadPublicEventDetails = (req, res, next) => {
         let id = req.session.club_id;
         let query = `SELECT event_name, event_description, date_of_event, place
             FROM club_events
-            WHERE event_id = ?;`;
+            WHERE event_id = $1;`;
         connection.query(query, [e_id], (eror, result, field) => {
             connection.release();
             if (eror) {
@@ -322,7 +323,7 @@ let loadClubData = (req, res, next) => {
         let id = req.session.club_id;
         let query = `SELECT club_name, club_objective
             FROM clubs
-            WHERE club_id = ?;`;
+            WHERE club_id = $1;`;
         connection.query(query, [id], (eror, result, field) => {
             connection.release();
             if (eror) {
@@ -341,7 +342,7 @@ let loadClubPageEvents = (req, res, next) => {
         let id = req.session.club_id;
         let query = `SELECT event_name, event_description, event_id
             FROM club_events
-            WHERE club_id = ?
+            WHERE club_id = $1
             AND status = 1
             AND date_of_event >= current_date;`;
         connection.query(query, [id], (eror, result, field) => {
@@ -362,7 +363,7 @@ let loadAnnouncements = (req, res, next) => {
         let id = req.session.club_id;
         let query = `SELECT announcements, title
             FROM announcements
-            WHERE club_id = ?
+            WHERE club_id = $1
             AND status = 1;`;
         connection.query(query, [id], (eror, result, field) => {
             connection.release();
@@ -395,12 +396,12 @@ let clubJoinRequest = (req, res, next) => {
             return res.sendStatus(500);
         }
         let query = `INSERT INTO join_request (user_id, club_id)
-              SELECT ?, ?
+              SELECT $1, $2
               WHERE NOT EXISTS (
-                SELECT 1 FROM membership WHERE user_id = ? AND club_id = ?
+                SELECT 1 FROM membership WHERE user_id = $3 AND club_id = $4
               )
               AND NOT EXISTS (
-                SELECT 1 FROM join_request WHERE user_id = ? AND club_id = ?
+                SELECT 1 FROM join_request WHERE user_id = $5 AND club_id = $6
               );`;
         connection.query(query, [u_id, c_id, u_id, c_id, u_id, c_id], (eror, result, fields) => {
             connection.release();
