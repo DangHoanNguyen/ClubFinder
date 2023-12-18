@@ -24,7 +24,7 @@ let sendclientid = (req, res, next) => {
 
 //When signing up
 let checkUniqueUsername = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -34,8 +34,8 @@ let checkUniqueUsername = (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            for (let i = 0; i < result.length; i++) {
-                if (result[i].username == req.body.username) {
+            for (let i = 0; i < result['rows'].length; i++) {
+                if (result['rows'][i].username == req.body.username) {
                     return res.send('found');
                 }
             }
@@ -45,7 +45,7 @@ let checkUniqueUsername = (req, res, next) => {
 };
 
 let checkUniqueEmail = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -55,10 +55,10 @@ let checkUniqueEmail = (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            for (let i = 0; i < result.length; i++) {
-                if (result[i].email == req.body.email) {
+            for (let i = 0; i < result['rows'].length; i++) {
+                if (result['rows'][i].email == req.body.email) {
                     req.session.accept_change = 0;
-                    console.log(result[i].email);
+                    console.log(result['rows'][i].email);
                     return res.send('found');
                 }
             }
@@ -74,7 +74,7 @@ let loadSignup = (req, res, next) => {
 
 //Creating a new account
 let signupReq = (req, res, next) => {
-    req.pool.getConnection(async (err, connection) => {
+    req.pool.connect(async (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -106,7 +106,7 @@ let signupReq = (req, res, next) => {
 
 
 let loginReq = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -116,11 +116,11 @@ let loginReq = (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            if (result.length !== 0) {
-                if (await argon2.verify(result[0].password_, req.body.password)) {
-                    req.session.user_id = result[0].user_id;
-                    req.session.role_id = result[0].role_id;
-                    req.session.email = result[0].email;
+            if (result['rows'].length !== 0) {
+                if (await argon2.verify(result['rows'][0].password_, req.body.password)) {
+                    req.session.user_id = result['rows'][0].user_id;
+                    req.session.role_id = result['rows'][0].role_id;
+                    req.session.email = result['rows'][0].email;
 
                     let role = req.session.role_id;
                     if (role == 1) {
@@ -129,7 +129,7 @@ let loginReq = (req, res, next) => {
                     if (role == 0) {
                         return res.redirect('/user/admin');
                     }
-                    return res.redirect('/user/profile?user_name=' + result[0].username);
+                    return res.redirect('/user/profile?user_name=' + result['rows'][0].username);
                 }
             }
             return res.sendStatus(403);
@@ -158,7 +158,7 @@ let googleLoginReq = async (req, res, next) => {
 };
 
 let checkGoogleUserExistence = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -171,9 +171,9 @@ let checkGoogleUserExistence = (req, res, next) => {
                 return res.sendStatus(500);
             }
 
-            if (result.length != 0) {
-                req.session.user_id = result[0].user_id;
-                req.session.role_id = result[0].role_id;
+            if (result['rows'].length != 0) {
+                req.session.user_id = result['rows'][0].user_id;
+                req.session.role_id = result['rows'][0].role_id;
                 if (req.session.role_id == 0) {
                     return res.redirect('user/admin');
                 }
@@ -193,7 +193,7 @@ let checkGoogleUserExistence = (req, res, next) => {
 
 // Creating an account for google login when the used gmail is not found in the database
 let createGoogleCredential = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -213,7 +213,7 @@ let createGoogleCredential = (req, res, next) => {
 };
 
 let loadClubs = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             console.log(err)
             return res.sendStatus(500);
@@ -227,14 +227,14 @@ let loadClubs = (req, res, next) => {
 
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 // filter the club list by catergories
 let filterClubsByCategory = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -259,13 +259,13 @@ let filterClubsByCategory = (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadPublicEvents = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             console.log(err);
             return res.sendStatus(500);
@@ -273,7 +273,7 @@ let loadPublicEvents = (req, res, next) => {
         let query = `SELECT event_name, event_description, event_id, date_of_event, place
             FROM club_events
             WHERE status = 1
-            AND date_of_event >= CURDATE();`;
+            AND date_of_event >= current_date;`;
         connection.query(query, (eror, result, field) => {
             connection.release();
             if (eror) {
@@ -281,14 +281,14 @@ let loadPublicEvents = (req, res, next) => {
 
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadPublicEventDetails = (req, res, next) => {
     let e_id = req.query.event_id;
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -301,7 +301,7 @@ let loadPublicEventDetails = (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
@@ -315,7 +315,7 @@ let renderClubPage = (req, res, next) => {
 };
 
 let loadClubData = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -328,13 +328,13 @@ let loadClubData = (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadClubPageEvents = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -343,19 +343,19 @@ let loadClubPageEvents = (req, res, next) => {
             FROM club_events
             WHERE club_id = ?
             AND status = 1
-            AND date_of_event >= CURDATE();`;
+            AND date_of_event >= current_date;`;
         connection.query(query, [id], (eror, result, field) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadAnnouncements = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return es.sendStatus(500);
         }
@@ -369,7 +369,7 @@ let loadAnnouncements = (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
@@ -390,7 +390,7 @@ let clubJoinRequest = (req, res, next) => {
 
     let u_id = req.session.user_id;
     let c_id = req.query.club_id;
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }

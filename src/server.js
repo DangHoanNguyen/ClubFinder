@@ -2,6 +2,7 @@ import express from "express";
 import initPublicWebRoutes from "./route/index.js";
 import initUserWebRoutes from "./route/user.js"
 import configViewEngine from "./config/viewEngine.js";
+const { Pool } = require('pg');
 import bodyParser from "body-parser";
 require("dotenv").config();
 const mysql = require("mysql2");
@@ -11,13 +12,17 @@ var session = require("express-session");
 
 let app = express();
 
-const connection = mysql.createPool({
-    host: 'sql12.freesqldatabase.com',
-    user: 'sql12668851',
-    password: 'CNxG34HwHL',
-    database: 'sql12668851',
-    port: 3306
-});
+// const connection = mysql.createPool({
+//     host: 'sql12.freesqldatabase.com',
+//     user: 'sql12668851',
+//     password: 'CNxG34HwHL',
+//     database: 'sql12668851',
+//     port: 3306
+// });
+
+const connection = new Pool({
+    connectionString: process.env.DATABASE_URL
+})
 
 app.use(function(req, res, next) {
     req.pool = connection;

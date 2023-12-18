@@ -27,7 +27,7 @@ let renderProfile = (req, res, next) => {
 
 
 let loadJoinedClubOfTheCurrentUser = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -35,19 +35,19 @@ let loadJoinedClubOfTheCurrentUser = (req, res, next) => {
         let query = `SELECT clubs.club_name, clubs.img, clubs.club_id FROM clubs
               INNER JOIN membership
               ON membership.club_id = clubs.club_id
-              WHERE membership.user_id = ?;`;
+              WHERE membership.user_id = $1;`;
         connection.query(query, [u_id],(eror, result, fields) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadAllVisibleEvents = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -58,33 +58,33 @@ let loadAllVisibleEvents = (req, res, next) => {
                   ON club_events.club_id = clubs.club_id
                   INNER JOIN membership
                   ON membership.club_id = clubs.club_id
-                  WHERE membership.user_id = ?
-                  AND club_events.date_of_event >= CURDATE();`;
+                  WHERE membership.user_id = $1
+                  AND club_events.date_of_event >= current_date;`;
         connection.query(query, [u_id], (eror, result, fields) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadUserProfile = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
         let u_id = req.session.user_id;
         let query = `SELECT first_name, last_name, age, gender, email, username, role_id
                   FROM users
-                  WHERE user_id = ?;`;
+                  WHERE user_id = $1;`;
         connection.query(query, [u_id], (eror, result, fields) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 }
@@ -92,7 +92,7 @@ let loadUserProfile = (req, res, next) => {
 
 //Announcement from all club that the current user is joining
 let loadAllRelatedAnnouncements = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -103,13 +103,13 @@ let loadAllRelatedAnnouncements = (req, res, next) => {
                   ON membership.club_id = clubs.club_id
                   INNER JOIN announcements
                   ON clubs.club_id = announcements.club_id
-                  WHERE membership.user_id = ?;`;
+                  WHERE membership.user_id = $1;`;
         connection.query(query, [u_id], function (eror, result, fields) {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
@@ -132,13 +132,13 @@ let adjustUserInformation = (req, res, next) => {
         g = 'x';
     }
 
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
         let query = `UPDATE users
-                  SET last_name = ?, first_name = ?, age = ?, gender = ?
-                  WHERE user_id = ?;`;
+                  SET last_name = $1, first_name = $2, age = $3, gender = $4
+                  WHERE user_id = $5;`;
         connection.query(query, [ln, fn, a, g, req.session.user_id], (eror, result, field) => {
             connection.release();
             if (eror) {
@@ -153,7 +153,7 @@ let adjustUserInformation = (req, res, next) => {
 };
 
 let loadCurrentRSVP = (req, res, next) => {
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -162,13 +162,13 @@ let loadCurrentRSVP = (req, res, next) => {
                   FROM club_events
                   INNER JOIN rsvp
                   ON club_events.event_id = rsvp.event_id
-                  WHERE rsvp.user_id = ?;`;
+                  WHERE rsvp.user_id = $1;`;
         connection.query(query, [u_id], (eror, result, fields) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
@@ -179,13 +179,13 @@ let respondRSVP = (req, res, next) => {
     if (req.body.rsvp_rep == "YES") {
         rep = 1;
     }
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
         let query = `UPDATE rsvp
-                  SET status = 1, rep = ?
-                  WHERE rsvp_id = ?;`;
+                  SET status = 1, rep = $1
+                  WHERE rsvp_id = $2;`;
         connection.query(query, [rep, id], (eror, result, field) => {
             connection.release();
             if (eror) {
@@ -199,13 +199,13 @@ let respondRSVP = (req, res, next) => {
 let resetRSVP = (req, res, next) => {
     let id = req.body.r_id;
     let rep = null;
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
         let query = `UPDATE rsvp
-                  SET status = 0, rep = ?
-                  WHERE rsvp_id = ?;`;
+                  SET status = 0, rep = $1
+                  WHERE rsvp_id = $2;`;
         connection.query(query, [rep, id], (eror, result, field) => {
             connection.release();
             if (eror) {
@@ -233,7 +233,7 @@ let renderClubManagement = (req, res, next) => {
 let LoadManaingClub = (req, res, next) => {
     //this_club_id is the id of the club that the current user manage => ensure that managers can only manage their own club
     req.session.this_club_id = -1;
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -242,23 +242,23 @@ let LoadManaingClub = (req, res, next) => {
                   FROM clubs
                   INNER JOIN users
                   ON clubs.manager_usrn = users.username
-                  WHERE users.user_id = ?;`;
+                  WHERE users.user_id = $1;`;
         connection.query(query, [u_id], (eror, result, fields) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            if (result.length != 0) {
-                req.session.this_club_id = result[0].club_id;
+            if (result['rows'].length != 0) {
+                req.session.this_club_id = result['rows'][0].club_id;
             }
 
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadMembers = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -273,19 +273,19 @@ let loadMembers = (req, res, next) => {
                   FROM users
                   INNER JOIN membership
                   ON users.user_id = membership.user_id
-                  WHERE membership.club_id = ?;`;
+                  WHERE membership.club_id = $1;`;
         connection.query(query, [c_id], (eror, result, fields) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadAllAnnouncements = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -298,24 +298,24 @@ let loadAllAnnouncements = (req, res, next) => {
         }
         let query = `SELECT announcements, title, announcement_id, status
                   FROM announcements
-                  WHERE club_id = ?;`;
+                  WHERE club_id = $1;`;
         connection.query(query, [id], (eror, result, field) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let addNewAnnouncement = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
         let query = `INSERT INTO announcements (club_id, announcements, title, status)
-                  VALUES (?, ?, ?, ?);`;
+                  VALUES ($1, $2, $3, $4);`;
         connection.query(query, [req.session.this_club_id, req.body.announcements, req.body.title, req.body.status], (eror, result, field) => {
             connection.release();
             if (eror) {
@@ -327,7 +327,7 @@ let addNewAnnouncement = (req, res, next) => {
 };
 
 let createNewEvent = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -335,7 +335,7 @@ let createNewEvent = (req, res, next) => {
         date = new Date(date);
         console.log(date);
         let query = `INSERT INTO club_events (club_id, event_name, event_description, date_of_event, place, status)
-                  VALUES (?, ?, ?, ?, ?, ?);`;
+                  VALUES ($1, $2, $3, $4, $5, $6);`;
         connection.query(query, [req.session.this_club_id, req.body.title, req.body.des, date, req.body.place, req.body.status], (eror, result, field) => {
             connection.release();
             if (eror) {
@@ -347,15 +347,15 @@ let createNewEvent = (req, res, next) => {
 };
 
 let updateEvent = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
         let date = req.body.date + ' ' + req.body.time;
         let query = `UPDATE club_events
-                  SET event_name = ?, event_description = ?, date_of_event = ?, place = ?, status = ?
-                  WHERE event_id = ?
-                  AND club_id = ?;`;
+                  SET event_name = $1, event_description = $2, date_of_event = $3, place = $4, status = $5
+                  WHERE event_id = $6
+                  AND club_id = $7;`;
         connection.query(query, [req.body.title,
         req.body.des, date,
         req.body.place,
@@ -372,11 +372,11 @@ let updateEvent = (req, res, next) => {
 };
 
 let deleteEvent = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
-        let query = `DELETE FROM club_events WHERE event_id = ? AND club_id = ?;`;
+        let query = `DELETE FROM club_events WHERE event_id = $1 AND club_id = $2;`;
         connection.query(query, [req.body.event_id,
         req.session.this_club_id], (eror, result, fields) => {
             connection.release();
@@ -391,7 +391,7 @@ let deleteEvent = (req, res, next) => {
 };
 
 let loadAllEvents = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -404,20 +404,20 @@ let loadAllEvents = (req, res, next) => {
         }
         let query = `SELECT event_name, event_description, event_id, place, date_of_event, status
                   FROM club_events
-                  WHERE club_id = ?
-                  AND date_of_event >= CURDATE();`;
+                  WHERE club_id = $1
+                  AND date_of_event >= current_date;`;
         connection.query(query, [id], (eror, result, field) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let deleteMembership = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -425,8 +425,8 @@ let deleteMembership = (req, res, next) => {
         let cid = req.body.c_id;
 
         let query = `DELETE FROM membership
-                  WHERE club_id = ?
-                  AND user_id = ?;`;
+                  WHERE club_id = $1
+                  AND user_id = $2;`;
         connection.query(query, [cid, uid],  (eror, result, field) => {
             connection.release();
             if (eror) {
@@ -438,7 +438,7 @@ let deleteMembership = (req, res, next) => {
 };
 
 let loadClubMemberRSVPforAnEvent =  (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -453,29 +453,29 @@ let loadClubMemberRSVPforAnEvent =  (req, res, next) => {
                   ON rsvp.user_id = users.user_id
                   INNER JOIN club_events
                   ON club_events.event_id = rsvp.event_id
-                  WHERE rsvp.event_id = ?
-                  AND club_events.club_id = ?;`;
+                  WHERE rsvp.event_id = $1
+                  AND club_events.club_id = $2;`;
         connection.query(query, [e_id, c_id], (eror, result, field) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let addRSVP = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
         let u_id = req.body.user_id;
         let e_id = req.body.event_id;
         let query = `INSERT INTO rsvp (user_id, event_id)
-                  SELECT ?, ?
+                  SELECT $1, $2
                   WHERE NOT EXISTS (
-                    SELECT 1 FROM rsvp WHERE user_id = ? AND event_id = ?
+                    SELECT 1 FROM rsvp WHERE user_id = $3 AND event_id = $4
                   )`;
         connection.query(query, [u_id, e_id, u_id, e_id], (eror, result, field) => {
             connection.release();
@@ -488,7 +488,7 @@ let addRSVP = (req, res, next) => {
 };
 
 let loadJoinRequets =  (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -497,13 +497,13 @@ let loadJoinRequets =  (req, res, next) => {
                   FROM join_request
                   INNER JOIN users
                   ON join_request.user_id = users.user_id
-                  WHERE join_request.club_id = ?;`;
+                  WHERE join_request.club_id = $1;`;
         connection.query(query, [c_id],  (eror, result, field) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
@@ -512,14 +512,14 @@ let acceptOrDenyRequest = (req, res, next) => {
     let c_id = req.session.this_club_id;
     let op = req.body.output;
     let u_id = req.body.user_id;
-    req.pool.getConnection((err, connection) => {
+    req.pool.connect((err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
-        let query = `DELETE FROM join_request WHERE user_id = ? AND club_id = ?;`;
-        let query1 = `INSERT INTO membership (user_id, club_id) SELECT ?, ?
+        let query = `DELETE FROM join_request WHERE user_id = $1 AND club_id = $2;`;
+        let query1 = `INSERT INTO membership (user_id, club_id) SELECT $3, $4
                     WHERE NOT EXISTS (
-                      SELECT 1 FROM membership WHERE user_id = ? AND club_id = ?
+                      SELECT 1 FROM membership WHERE user_id = $5 AND club_id = $6
                     );`;
 
         connection.query(query, [u_id, c_id], (eror, result, field) => {
@@ -528,7 +528,6 @@ let acceptOrDenyRequest = (req, res, next) => {
             }
         });
         if (op == "Accept") {
-            // query = `INSERT INTO membership (user_id, club_id) VALUES (?, ?); DELETE FROM join_request WHERE user_id = ? AND club_id = ?;`;
 
             connection.query(query1, [u_id, c_id, u_id, c_id], (eror, result, field) => {
                 connection.release();
@@ -539,8 +538,8 @@ let acceptOrDenyRequest = (req, res, next) => {
         }
         else {
             query = `DELETE FROM join_request
-                WHERE user_id = ?
-                AND club_id = ?;`;
+                WHERE user_id = $1
+                AND club_id = $2;`;
             connection.query(query, [u_id, c_id], function (eror, result, field) {
                 connection.release();
                 if (eror) {
@@ -592,7 +591,7 @@ let filter3 = (req, res, next) => {
 };
 
 let loadGeneralClubInfo =  (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -604,13 +603,13 @@ let loadGeneralClubInfo =  (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadAllUsers =  (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -620,13 +619,13 @@ let loadAllUsers =  (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let loadEmailsOfAllMembersOfAClub = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -634,23 +633,23 @@ let loadEmailsOfAllMembersOfAClub = (req, res, next) => {
                   FROM users
                   INNER JOIN membership
                   ON users.user_id = membership.user_id
-                  WHERE membership.club_id = ?;`;
+                  WHERE membership.club_id = $1;`;
         connection.query(query, [req.body.club_id], (eror, result, fields) => {
             connection.release();
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let deleteClub = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
-        let query = `DELETE FROM clubs WHERE club_id = ?`;
+        let query = `DELETE FROM clubs WHERE club_id = $1`;
         connection.query(query, [req.body.c_id],  (eror, result, fields) => {
             connection.release();
             if (eror) {
@@ -662,11 +661,11 @@ let deleteClub = (req, res, next) => {
 };
 
 let deleteUser = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
-        let query = `DELETE FROM users WHERE user_id = ?`;
+        let query = `DELETE FROM users WHERE user_id = $1`;
         connection.query(query, [req.body.u_id], (eror, result, fields) => {
             connection.release();
             if (eror) {
@@ -683,7 +682,7 @@ let renderAdmins = (req, res, next) => {
 }
 
 let loadAdminInfo = (req, res, next) => {
-    req.pool.getConnection( (err, connection) => {
+    req.pool.connect( (err, connection) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -693,13 +692,13 @@ let loadAdminInfo = (req, res, next) => {
             if (eror) {
                 return res.sendStatus(500);
             }
-            return res.json(result);
+            return res.json(result['rows']);
         });
     });
 };
 
 let signupAdminReq = (req, res, next) => {
-    req.pool.getConnection(async (err, connection) => {
+    req.pool.connect(async (err, connection) => {
         if (err) {
             return tres.sendStatus(500);
         }
@@ -712,12 +711,12 @@ let signupAdminReq = (req, res, next) => {
             gend = 'f';
         }
         let query = `INSERT INTO users (username, password_, first_name, last_name, age, gender, email, role_id)
-                  SELECT ?, ?, ?, ?, ?, ?, ?, 0
+                  SELECT $1, $2, $3, $4, $5, $6, $7, 0
                   WHERE NOT EXISTS (
-                    SELECT 1 FROM users WHERE username = ?
+                    SELECT 1 FROM users WHERE username = $8
                   )
                   AND NOT EXISTS(
-                    SELECT 1 FROM users WHERE email = ?
+                    SELECT 1 FROM users WHERE email = $9
                   );`;
         connection.query(query, [req.body.username, pass, req.body.firstname, req.body.lastname, req.body.age, gend, req.body.email, req.body.username, req.body.email], (eror, result, fields) => {
             connection.release();
