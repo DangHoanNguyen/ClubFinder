@@ -216,8 +216,7 @@ let loadClubs = (req, res, next) => {
     req.pool.connect((err, connection) => {
         if (err) {
             console.log(err);
-            // return res.sendStatus(500);
-            return res.send(err)
+            return res.send(500);
         }
         let query = `SELECT club_name, club_objective, club_id
             FROM clubs;`;
@@ -225,10 +224,7 @@ let loadClubs = (req, res, next) => {
             connection.release();
             if (eror) {
                 console.log(eror)
-
-                // return res.sendStatus(500);
-                return res.send(eror)
-
+                return res.send(500);
             }
             return res.json(result['rows']);
         });
